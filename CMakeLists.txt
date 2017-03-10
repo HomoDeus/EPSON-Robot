@@ -24,6 +24,7 @@ include_directories( include)
 SET(moh_hdrs
         include/RobotDriver.h
         include/client.h
+        include/server.h
         )
 #Generate CPP files from moh headers
 QT5_WRAP_CPP(moh_srcs ${moh_hdrs})
@@ -34,6 +35,7 @@ set(LIBRARY_SOURCES
         src/filesender.cpp
         src/RobotDriver.cpp
         src/client.cpp
+        src/server.cpp
         ${moh_srcs})
 
 
