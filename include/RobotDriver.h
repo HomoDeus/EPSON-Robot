@@ -21,7 +21,7 @@ QT_END_NAMESPACE
 class RobotDriver: public QObject {
     Q_OBJECT
 public:
-    RobotDriver();
+    RobotDriver(QObject *parent=0);
     Frame_Type GetPosition();
 
     void connectRobot();

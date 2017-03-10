@@ -3,7 +3,7 @@
 //
 #include "RobotDriver.h"
 #include <QTcpSocket>
-RobotDriver::RobotDriver():networkSession(0){
+RobotDriver::RobotDriver(QObject *parent):networkSession(0){
     IPAddr="192.168.10.85";
     PortID=33006;
     in.setDevice(tcpSocket);
