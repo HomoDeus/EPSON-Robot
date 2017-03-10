@@ -3,36 +3,25 @@
 //
 #include "RobotDriver.h"
 
-RobotDriver::RobotDriver(QObject *parent):QObject(parent),networkSession(0){
-    IPAddr="192.168.10.85";
-    PortID=43253;
+RobotDriver::RobotDriver(QObject *parent)
+        :QObject(parent){
+    //TODO IP and port is written here directly. It will be removed to config file later.
+    robot_ip_address="192.168.10.70";
+    robot_port_ID=6000;
     tcpSocket = new QTcpSocket(this);
-//    connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(readTCPMessage()));
+
     connect(tcpSocket, &QTcpSocket::readyRead, this, &RobotDriver::readTCPMessage);
     connect(tcpSocket, SIGNAL(error(QAbstractSocket::SocketError)),
             this, SLOT(TCPError(QAbstractSocket::SocketError)));
-
 }
 
 bool RobotDriver::SendCmd(std::string cmd){
-
+    tcpSocket->write("$login");
+    tcpSocket->write("How are you?");
 }
 
 void RobotDriver::readTCPMessage(){
-    QDataStream in(tcpSocket);
-    in.setVersion(QDataStream::Qt_4_0);
-    if (blockSize == 0) {
-        if (tcpSocket->bytesAvailable() < (int)sizeof(quint16))
-            return;
-        in >> blockSize;
-    }
-
-    if (tcpSocket->bytesAvailable() < blockSize)
-        return;
-
-    QString msg;
-    in >> msg;
-    message = msg;
+    message=tcpSocket->readAll();
     qDebug()<<"Receive a message from TCP:"<<message;
 }
 
@@ -44,9 +33,8 @@ Frame_Type RobotDriver::GetPosition(){
 }
 
 void RobotDriver::connectRobot(){
-    blockSize = 0;
     tcpSocket->abort();
-    tcpSocket->connectToHost(IPAddr,PortID);
+    tcpSocket->connectToHost(robot_ip_address,robot_port_ID);
 }
 
 void RobotDriver::TCPError(QAbstractSocket::SocketError socketError)

@@ -7,6 +7,7 @@
 
 #include <Eigen/Geometry>
 #include <QTcpSocket>
+#include <QtNetwork>
 #include <QDataStream>
 struct Frame_Type{
     Eigen::Vector3d position;
@@ -26,19 +27,16 @@ public:
 
     void connectRobot();
     bool SendCmd(std::string cmd);
-
+    void send_TCP_Package(QString package);
 private slots:
     void readTCPMessage();
     void TCPError(QAbstractSocket::SocketError socketError);
 
 private:
+
     QTcpSocket *tcpSocket;
-    QDataStream in;
-    QDataStream out;
-    quint16 blockSize;
-    QNetworkSession *networkSession;
-    QString IPAddr;
-    int PortID;
+    QString robot_ip_address;
+    quint16 robot_port_ID;
     QString message;
 };
 

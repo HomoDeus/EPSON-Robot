@@ -53,6 +53,7 @@ int main(int argc, char *argv[])
     //return 0;
     RobotDriver epson;
     epson.connectRobot();
+    epson.SendCmd("$login");
     qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
     return app.exec();
 }
