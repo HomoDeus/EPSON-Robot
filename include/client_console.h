@@ -55,12 +55,12 @@ class QNetworkSession;
 QT_END_NAMESPACE
 
 //! [0]
-class Client : public QDialog
+class Client : public QObject
 {
 Q_OBJECT
 
 public:
-    Client(QWidget *parent = 0);
+    Client(QObject *parent = 0);
 
 private slots:
     void requestNewFortune();

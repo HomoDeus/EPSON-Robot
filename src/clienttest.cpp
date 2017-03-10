@@ -43,16 +43,16 @@
 //#include "filesender.h"
 #include "RobotDriver.h"
 #include <stdlib.h>
-#include "client.h"
+#include "client_console.h"
 #include "server.h"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    Client client;
-    client.show();
-//    RobotDriver epson;
-//    epson.connectRobot();
+//    Client client;
+    //return 0;
+    RobotDriver epson;
+    epson.connectRobot();
     qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
     return app.exec();
 }

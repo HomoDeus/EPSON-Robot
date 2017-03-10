@@ -2,15 +2,16 @@
 // Created by sail on 17-3-10.
 //
 #include "RobotDriver.h"
-#include <QTcpSocket>
-RobotDriver::RobotDriver(QObject *parent):networkSession(0){
+
+RobotDriver::RobotDriver(QObject *parent):QObject(parent),networkSession(0){
     IPAddr="192.168.10.85";
-    PortID=33006;
-    in.setDevice(tcpSocket);
-    in.setVersion(QDataStream::Qt_4_0);
-    connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(readTCPMessage()));
+    PortID=43253;
+    tcpSocket = new QTcpSocket(this);
+//    connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(readTCPMessage()));
+    connect(tcpSocket, &QTcpSocket::readyRead, this, &RobotDriver::readTCPMessage);
     connect(tcpSocket, SIGNAL(error(QAbstractSocket::SocketError)),
             this, SLOT(TCPError(QAbstractSocket::SocketError)));
+
 }
 
 bool RobotDriver::SendCmd(std::string cmd){
@@ -18,6 +19,8 @@ bool RobotDriver::SendCmd(std::string cmd){
 }
 
 void RobotDriver::readTCPMessage(){
+    QDataStream in(tcpSocket);
+    in.setVersion(QDataStream::Qt_4_0);
     if (blockSize == 0) {
         if (tcpSocket->bytesAvailable() < (int)sizeof(quint16))
             return;
@@ -30,6 +33,7 @@ void RobotDriver::readTCPMessage(){
     QString msg;
     in >> msg;
     message = msg;
+    qDebug()<<"Receive a message from TCP:"<<message;
 }
 
 Frame_Type RobotDriver::GetPosition(){
