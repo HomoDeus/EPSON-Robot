@@ -50,7 +50,8 @@ int main(int argc, char *argv[])
 //    Client client;
     //return 0;
     RobotDriver epson_driver;
-    epson_driver.connectRobot("192.168.0.2",5000);
+//    epson_driver.connectRobot("192.168.0.2",5000);
+    epson_driver.connectRobot("192.168.10.85",6000);
     epson_driver.run();
     return app.exec();
 }

@@ -28,16 +28,16 @@ public:
     void connectRobot(std::string ipAddress, quint16 portID);
     void run();
 
-//private slots:
-//    void readTCPMessage();
-//    void TCPError(QAbstractSocket::SocketError socketError);
+private slots:
+    void read_message();
+    void TCPError(QAbstractSocket::SocketError socketError);
 
 private:
     bool cmdSendLock;//Lock the send cmd process when execution of last command is unfinished.
     void send_command_thread();
-    void receive_message_thread();
+    //void receive_message_thread();
     void manager_thread();
-    void TCPError(QAbstractSocket::SocketError socketError);
+    //void TCPError(QAbstractSocket::SocketError socketError);
     void sendCmd(std::string cmd);
     QTcpSocket *tcpSocket;
     QString robot_ip_address;
