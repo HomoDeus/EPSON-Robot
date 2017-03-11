@@ -7,20 +7,24 @@ RobotDriver::RobotDriver(QObject *parent)
         :QObject(parent){
     //TODO IP and port is written here directly. It will be removed to config file later.
     cmdSendLock= false;
-    tcpSocket = new QTcpSocket(this);
-
+    tcpSocket = new QTcpSocket();
     connect(tcpSocket, &QTcpSocket::readyRead, this, &RobotDriver::read_message);
     connect(tcpSocket, SIGNAL(error(QAbstractSocket::SocketError)),
             this, SLOT(TCPError(QAbstractSocket::SocketError)));
 }
 void RobotDriver::manager_thread(){
     sendCmd("login");
-    sendCmd("getStatus1");
-    sendCmd("getStatus2");
-    sendCmd("getStatus3");
+    sendCmd("getStatus");
+    executeCmd("moter on");
+    executeCmd("go p3");
 }
 void RobotDriver::sendCmd(std::string cmd){
     cmd_queue_.push(cmd);
+}
+void RobotDriver::executeCmd(std::string cmd){
+    std::string executecmd("execute,\"");
+    executecmd.append(cmd).append("\"");;
+    sendCmd(executecmd);
 }
 void RobotDriver::run(){
     qDebug()<<"Starting manager thread..";
@@ -28,8 +32,10 @@ void RobotDriver::run(){
         new boost::thread(boost::bind(&RobotDriver::manager_thread, this));
     this->send_command_thread_=
         new boost::thread(boost::bind(&RobotDriver::send_command_thread,this));
+//    send_command_thread();
 }
 void RobotDriver::send_command_thread(){
+
     while(1){
         if(!cmd_queue_.empty()&&!cmdSendLock){
             cmdSendLock=true;

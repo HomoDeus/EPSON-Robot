@@ -39,6 +39,7 @@ private:
     void manager_thread();
     //void TCPError(QAbstractSocket::SocketError socketError);
     void sendCmd(std::string cmd);
+    void executeCmd(std::string cmd);
     QTcpSocket *tcpSocket;
     QString robot_ip_address;
     quint16 robot_port_ID;
