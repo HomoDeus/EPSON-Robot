@@ -25,7 +25,7 @@ public:
     RobotDriver(QObject *parent=0);
     Frame_Type GetPosition();
     void connectRobot(std::string ipAddress, quint16 portID);
-    bool SendCmd(std::string cmd);
+    bool send_command_thread();
     void send_TCP_Package(QString package);
     void run();
     void managerThread();
@@ -40,7 +40,8 @@ private:
     quint16 robot_port_ID;
     QString message;
     boost::thread* manager_thread_; ///< thread for running the main functionaility of the manager
-
+    boost::thread* send_command_thread_;
+    std::array<std::string> cmdlist;//TODO:change it to array;
 };
 
 

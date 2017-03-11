@@ -14,20 +14,26 @@ RobotDriver::RobotDriver(QObject *parent)
             this, SLOT(TCPError(QAbstractSocket::SocketError)));
 }
 void RobotDriver::managerThread(){
-    SendCmd("login");
+
 }
 void RobotDriver::run(){
     qDebug()<<"Starting manager thread..";
     this->manager_thread_ =
-            new boost::thread(boost::bind(&RobotDriver::managerThread, this));
+        new boost::thread(boost::bind(&RobotDriver::managerThread, this));
+    this->send_command_thread_=
+        new boost::thread(boost::bind(&RobotDriver::send_command_thread,this));
 }
-bool RobotDriver::SendCmd(std::string cmd){
-    while(cmdSendLock);
-    cmdSendLock=true;
-    QString package("$");
-    package.append(cmd.data()).append("\n\n");
-    qDebug() << "package" << package;
-    tcpSocket->write(package.toStdString().data());
+bool RobotDriver::send_command_thread(){
+    while(1){
+        if(cmdlist.size()>0&&!cmdSendLock){
+            cmdSendLock=true;
+            QString package("$");
+            std::string cmd=cmdlist.pop();
+            package.append(cmd.data()).append("\n\n");
+            qDebug() << "package" << package;
+            tcpSocket->write(package.toStdString().data());
+        }
+    }
 }
 
 void RobotDriver::readTCPMessage(){
