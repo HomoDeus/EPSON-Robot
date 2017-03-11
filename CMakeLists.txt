@@ -10,7 +10,8 @@ find_package(Qt5Network REQUIRED)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Xml REQUIRED)
 find_package(Qt5Widgets REQUIRED)
-find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED COMPONENTS system thread)
+
 ###########
 ## Build ##
 ###########
@@ -18,7 +19,9 @@ find_package(Boost REQUIRED COMPONENTS system)
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
-include_directories( include)
+include_directories( include
+#        ${Boost_INCLUDE_DIRS}
+        )
 
 #QT headers needed to be processed with QT MOH compiler
 SET(moh_hdrs
@@ -40,8 +43,8 @@ target_link_libraries(filesenderlib
         Qt5::Core
         Qt5::Network
         Qt5::Widgets
-        ${Boost_Libraries})
-
+        ${Boost_LIBRARIES}
+        )
 
 set(SOURCE_FILES
         ${LIBRARY_SOURCES}
@@ -49,7 +52,4 @@ set(SOURCE_FILES
 
 add_executable(test_node ${SOURCE_FILES})
 target_link_libraries(test_node
-        Qt5::Core
-        Qt5::Network
-        Qt5::Widgets
-        ${Boost_Libraries})
+        filesenderlib)

@@ -8,7 +8,7 @@
 #include <QTcpSocket>
 #include <QtNetwork>
 #include <QDataStream>
-#include <boost/thread.hpp>
+#include <boost/thread/thread.hpp>
 struct Frame_Type{
     Eigen::Vector3d position;
     Eigen::Vector3d rpy;
