@@ -38,8 +38,6 @@ set(LIBRARY_SOURCES
         src/server.cpp
         ${moh_srcs})
 
-
-
 add_library(filesenderlib ${LIBRARY_SOURCES})
 target_link_libraries(filesenderlib
         Qt5::Core
