@@ -8,38 +8,48 @@ RobotDriver::RobotDriver(QObject *parent)
     //TODO IP and port is written here directly. It will be removed to config file later.
     cmdSendLock= false;
     tcpSocket = new QTcpSocket(this);
-
-    connect(tcpSocket, &QTcpSocket::readyRead, this, &RobotDriver::readTCPMessage);
-    connect(tcpSocket, SIGNAL(error(QAbstractSocket::SocketError)),
-            this, SLOT(TCPError(QAbstractSocket::SocketError)));
+//
+//    connect(tcpSocket, &QTcpSocket::readyRead, this, &RobotDriver::readTCPMessage);
+//    connect(tcpSocket, SIGNAL(error(QAbstractSocket::SocketError)),
+//            this, SLOT(TCPError(QAbstractSocket::SocketError)));
 }
-void RobotDriver::managerThread(){
-
+void RobotDriver::manager_thread(){
+    sendCmd("login");
+    sendCmd("getStatus");
+}
+void RobotDriver::sendCmd(std::string cmd){
+    cmd_queue_.push(cmd);
 }
 void RobotDriver::run(){
     qDebug()<<"Starting manager thread..";
     this->manager_thread_ =
-        new boost::thread(boost::bind(&RobotDriver::managerThread, this));
+        new boost::thread(boost::bind(&RobotDriver::manager_thread, this));
     this->send_command_thread_=
         new boost::thread(boost::bind(&RobotDriver::send_command_thread,this));
+    this->receive_message_thread_=
+        new boost::thread(boost::bind(&RobotDriver::send_command_thread,this));
 }
-bool RobotDriver::send_command_thread(){
+void RobotDriver::send_command_thread(){
     while(1){
-        if(cmdlist.size()>0&&!cmdSendLock){
+        if(!cmd_queue_.empty()&&!cmdSendLock){
             cmdSendLock=true;
             QString package("$");
-            std::string cmd=cmdlist.pop();
-            package.append(cmd.data()).append("\n\n");
+            package.append(cmd_queue_.front().data()).append("\n\n");
+            cmd_queue_.pop();
             qDebug() << "package" << package;
             tcpSocket->write(package.toStdString().data());
         }
     }
 }
 
-void RobotDriver::readTCPMessage(){
-    message=tcpSocket->readAll();
-    qDebug()<<"Receive a message from TCP:"<<message;
-    cmdSendLock=false;
+void RobotDriver::receive_message_thread(){
+    while(1){
+        if(tcpSocket->bytesAvailable()>0){
+            message=tcpSocket->readAll();
+            qDebug()<<"Receive a message from TCP:"<<message;
+            cmdSendLock=false;
+        }
+    }
 }
 
 Frame_Type RobotDriver::GetPosition(){
