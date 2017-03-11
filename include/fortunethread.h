@@ -38,21 +38,29 @@
 **
 ****************************************************************************/
 
-#include <QApplication>
-#include <QtCore>
-//#include "filesender.h"
-#include "RobotDriver.h"
-#include <stdlib.h>
+#ifndef FORTUNETHREAD_H
+#define FORTUNETHREAD_H
 
-int main(int argc, char *argv[])
+#include <QThread>
+#include <QTcpSocket>
+
+//! [0]
+class FortuneThread : public QThread
 {
-    QApplication app(argc, argv);
-//    Client client;
-    //return 0;
-    RobotDriver epson_driver;
-    //epson_driver.connectRobot("192.168.0.2",5000);
-    //epson_driver.connectRobot("192.168.10.85",6000);
-    epson_driver.connectRobot("192.168.10.100",6000);
-    epson_driver.run();
-    return app.exec();
-}
+    Q_OBJECT
+
+public:
+    FortuneThread(int socketDescriptor, const QString &fortune, QObject *parent);
+
+    void run() Q_DECL_OVERRIDE;
+
+signals:
+    void error(QTcpSocket::SocketError socketError);
+
+private:
+    int socketDescriptor;
+    QString text;
+};
+//! [0]
+
+#endif
