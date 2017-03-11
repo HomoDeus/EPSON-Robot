@@ -23,8 +23,6 @@ include_directories( include)
 #QT headers needed to be processed with QT MOH compiler
 SET(moh_hdrs
         include/RobotDriver.h
-        include/client_console.h
-        include/server.h
         )
 #Generate CPP files from moh headers
 QT5_WRAP_CPP(moh_srcs ${moh_hdrs})
@@ -32,10 +30,7 @@ QT5_WRAP_CPP(moh_srcs ${moh_hdrs})
 ## Declare a C++ library
 
 set(LIBRARY_SOURCES
-        src/filesender.cpp
         src/RobotDriver.cpp
-        src/client_console.cpp
-        src/server.cpp
         ${moh_srcs})
 
 
@@ -44,7 +39,8 @@ add_library(filesenderlib ${LIBRARY_SOURCES})
 target_link_libraries(filesenderlib
         Qt5::Core
         Qt5::Network
-        Qt5::Widgets)
+        Qt5::Widgets
+        ${Boost_Libraries})
 
 
 set(SOURCE_FILES
@@ -55,14 +51,5 @@ add_executable(test_node ${SOURCE_FILES})
 target_link_libraries(test_node
         Qt5::Core
         Qt5::Network
-        Qt5::Widgets)
-
-set(SOURCE_FILES
-        ${LIBRARY_SOURCES}
-        src/servertest.cpp)
-
-add_executable(servertest_node ${SOURCE_FILES})
-target_link_libraries(servertest_node
-        Qt5::Core
-        Qt5::Network
-        Qt5::Widgets)
+        Qt5::Widgets
+        ${Boost_Libraries})

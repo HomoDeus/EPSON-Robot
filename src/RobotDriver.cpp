@@ -6,23 +6,34 @@
 RobotDriver::RobotDriver(QObject *parent)
         :QObject(parent){
     //TODO IP and port is written here directly. It will be removed to config file later.
-    robot_ip_address="192.168.10.70";
-    robot_port_ID=6000;
+    cmdSendLock= false;
     tcpSocket = new QTcpSocket(this);
 
     connect(tcpSocket, &QTcpSocket::readyRead, this, &RobotDriver::readTCPMessage);
     connect(tcpSocket, SIGNAL(error(QAbstractSocket::SocketError)),
             this, SLOT(TCPError(QAbstractSocket::SocketError)));
 }
-
+void RobotDriver::managerThread(){
+    SendCmd("login");
+}
+void RobotDriver::run(){
+    qDebug()<<"Starting manager thread..";
+    this->manager_thread_ =
+            new boost::thread(boost::bind(&RobotDriver::managerThread, this));
+}
 bool RobotDriver::SendCmd(std::string cmd){
-    tcpSocket->write("$login");
-    tcpSocket->write("How are you?");
+    while(cmdSendLock);
+    cmdSendLock=true;
+    QString package("$");
+    package.append(cmd.data()).append("\n\n");
+    qDebug() << "package" << package;
+    tcpSocket->write(package.toStdString().data());
 }
 
 void RobotDriver::readTCPMessage(){
     message=tcpSocket->readAll();
     qDebug()<<"Receive a message from TCP:"<<message;
+    cmdSendLock=false;
 }
 
 Frame_Type RobotDriver::GetPosition(){
@@ -32,7 +43,10 @@ Frame_Type RobotDriver::GetPosition(){
     return frame;
 }
 
-void RobotDriver::connectRobot(){
+void RobotDriver::connectRobot(std::string ipAddress, quint16 portID){
+    robot_ip_address=ipAddress.data();
+    qDebug()<<"robot_ip_address: "<<robot_ip_address;
+    robot_port_ID=portID;
     tcpSocket->abort();
     tcpSocket->connectToHost(robot_ip_address,robot_port_ID);
 }
