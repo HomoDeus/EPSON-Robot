@@ -8,8 +8,12 @@
 #include <QTcpSocket>
 #include <QtNetwork>
 #include <QDataStream>
+#include <QThread>
 #include <boost/thread/thread.hpp>
 #include <queue>
+#include <memory>
+
+
 struct Frame_Type{
     Eigen::Vector3d position;
     Eigen::Vector3d rpy;
@@ -20,6 +24,50 @@ class QTcpSocket;
 class QNetworkSession;
 QT_END_NAMESPACE
 
+class CommandQueue : public QThread {
+Q_OBJECT
+public:
+    CommandQueue(QObject* parent = 0);
+
+    // reimplement run
+    void run();
+
+    QString popFront();
+
+private:
+    void sendCmd(std::string cmd);
+    void executeCmd(std::string cmd);
+
+private:
+    std::queue<std::string> m_cmdQueue;
+    boost::mutex m_mutex;
+};
+
+class NetworkThread : public QThread {
+    Q_OBJECT
+public:
+    NetworkThread(const std::string& address, unsigned short port,
+                  const std::shared_ptr<CommandQueue>& cmdQueue,
+                  QObject* parent = 0);
+
+    //reimplement run
+    void run();
+
+private:
+    void connectRobot();
+
+public slots:
+    void receivedMessage();
+    void receivedError(QAbstractSocket::SocketError socketError);
+    void loop();
+
+private:
+    std::shared_ptr<QTcpSocket> m_tcpSocket;
+    std::string m_address;
+    unsigned short m_port;
+    std::shared_ptr<CommandQueue> m_cmdQueue;
+};
+
 class RobotDriver: public QObject {
     Q_OBJECT
 public:
@@ -28,7 +76,7 @@ public:
     void connectRobot(std::string ipAddress, quint16 portID);
     void run();
 
-private slots:
+public slots:
     void read_message();
     void TCPError(QAbstractSocket::SocketError socketError);
 

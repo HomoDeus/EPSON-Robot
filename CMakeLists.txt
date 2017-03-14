@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.6)
+
+set(CMAKE_CXX_STANDARD 11)
 project(EPSON-Robot)
 
 # Instruct CMake to run moc automatically when needed.
